@@ -1,0 +1,7 @@
+[project]
+name = "genrulesengine"
+version = "0.1.0"
+description = "generic rules engine"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
