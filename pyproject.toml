@@ -5,3 +5,17 @@ description = "generic rules engine"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = []
+# follows uv convention package name should be the same as project name
+packages = ["genrulesengine"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+]
+# uv build doesn't work on Windows, so using hacthling to build wheels
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]

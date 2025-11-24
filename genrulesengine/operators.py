@@ -65,7 +65,7 @@ def op_in(l, r):
 @register("contains")
 def contains(l, r):
     try:
-        return l in r
+        return r in l
     except TypeError:
         return False
 
