@@ -1,18 +1,18 @@
-from genrulesengine.operators import OPERATORS
+from genrulesengine.operators.operators import operators
 
 class TestOperators:
     def test_registration(self):
-        assert "=" in OPERATORS
-        assert "!=" in OPERATORS
-        assert "<" in OPERATORS
-        assert ">" in OPERATORS
-        assert "<=" in OPERATORS
-        assert ">=" in OPERATORS
-        assert "in" in OPERATORS
-        assert "contains" in OPERATORS
+        assert "=" in operators.registry
+        assert "!=" in operators.registry
+        assert "<" in operators.registry
+        assert ">" in operators.registry
+        assert "<=" in operators.registry
+        assert ">=" in operators.registry
+        assert "in" in operators.registry
+        assert "contains" in operators.registry
 
     def test_equality(self):
-        eq, ne = OPERATORS["="], OPERATORS["!="]
+        eq, ne = operators.registry["="], operators.registry["!="]
         assert eq(5, 5) == True
         assert eq(5, 10) == False
         assert eq("wrong type", 1) is False
@@ -21,7 +21,7 @@ class TestOperators:
         assert ne("wrong type", 1) is True
 
     def test_comparison(self):
-        gt, lt, gte, lte = OPERATORS[">"], OPERATORS["<"], OPERATORS[">="], OPERATORS["<="]
+        gt, lt, gte, lte = operators.registry[">"], operators.registry["<"], operators.registry[">="], operators.registry["<="]
         assert gt(5, 1) == True
         assert gt(1, 1) == False
         assert gt(1, 2) == False
@@ -36,14 +36,14 @@ class TestOperators:
         assert lte(1, 2) == True
 
     def test_comparison_exceptions(self):
-        gt, lt, gte, lte = OPERATORS[">"], OPERATORS["<"], OPERATORS[">="], OPERATORS["<="]
+        gt, lt, gte, lte = operators.registry[">"], operators.registry["<"], operators.registry[">="], operators.registry["<="]
         assert gt("test", 1) == False
         assert lt("test", 1) == False
         assert gte("test", 1) == False
         assert lte("test", 1) == False
 
     def test_membership(self):
-        op_in, contains = OPERATORS["in"], OPERATORS["contains"]
+        op_in, contains = operators.registry["in"], operators.registry["contains"]
         arr = [1, 2, 3, 4, 5]
         assert op_in(1, arr) == True
         assert op_in(6, arr) == False
@@ -51,7 +51,7 @@ class TestOperators:
         assert contains(arr, 10) == False
 
     def test_membership_exceptions(self):
-        op_in, contains = OPERATORS["in"], OPERATORS["contains"]
+        op_in, contains = operators.registry["in"], operators.registry["contains"]
         assert op_in("test", 1) == False
         assert op_in(1, [1, 2]) == True
         assert contains(1, 1) == False
