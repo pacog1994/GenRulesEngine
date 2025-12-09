@@ -1,5 +1,4 @@
-from genrulesengine.actions.actions import actions
-
+from genrulesengine.registry.actions.action import actions
 
 def test_registration():
     assert "approve" in actions.registry

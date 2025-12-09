@@ -1,4 +1,4 @@
-from genrulesengine.operators.operators import operators
+from genrulesengine.registry.operators.operator import operators
 
 
 def test_registration():
