@@ -14,6 +14,8 @@ class ConditionGroup:
     """
     Initialize a Condition Group, acts as a nested node
     for condition tree
+    :param all: array containing conditions that must all be met
+    :param any: array containing conditions that one needs to be met
     """
     all: list[Condition | ConditionGroup] | None = None
     any: list[Condition | ConditionGroup] | None = None

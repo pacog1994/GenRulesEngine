@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 from genrulesengine.registry.operators.operator import operators
-from genrulesengine.models.conditions.conditions import Condition, ConditionGroup, ConditionTree
-from genrulesengine.models.rule import Rule
+from genrulesengine.models.conditions.condition import Condition, ConditionGroup, ConditionTree
+from genrulesengine.models.rules.rule import Rule
 
 
 def _get_nested_value(field: str, data: Dict[str, Any])->Any:
@@ -47,27 +47,46 @@ class Evaluator:
 
     def evaluate_condition_group(self, cg: ConditionGroup, context: Dict[str, Any]) -> bool:
         """
-        TODO Evaluate the condition group recursively
-        :param cxt: context
-        :return:
+        Evaluates the condition group recursively, due to potential nested condition groups
+        :param cg: condition group
+        :param context: input data
+        :return: True or False
         """
+        if cg.any:
+            # internal any flag, passes if ANY node passes
+            passes = False
+            for node in cg.any:
+                if isinstance(node, ConditionGroup):
+                    if self.evaluate_condition_group(node, context):
+                        passes = True
+                        continue
+                else:
+                    if self.evaluate_condition(node, context):
+                        passes = True
+                        break
+            if not passes:
+                return False
 
+        if cg.all:
+            for node in cg.all:
+                if isinstance(node, ConditionGroup):
+                    if not self.evaluate_condition_group(node, context):
+                        return False
+                else:
+                    if not self.evaluate_condition(node, context):
+                        return False
+
+        # If reaches the end of check, return True
+        return True
 
     def evaluate_condition_tree(self, ct: ConditionTree, context: Dict[str, Any]) -> bool:
         """
-        TODO
-        :param ct:
-        :param context:
-        :return:
+        Evaluate the root node of the tree
+        :param ct: condition tree
+        :param context: input data
+        :return: True or False
         """
-
-    def evaluate_rule(self, rule: Rule, context: Dict[str, Any]) -> bool:
-        """
-        TODO
-        :param rule:
-        :param context:
-        :return:
-        """
+        return self.evaluate_condition_group(ct.root, context)
 
     def evaluate_rules(self, rules: list[Rule], context: Dict[str, Any])->bool:
         """
@@ -76,4 +95,4 @@ class Evaluator:
         :param context: incoming data
         :return: True or False
         """
-        return all([self.evaluate_rule(rule, context) for rule in rules])
+        return all([self.evaluate_condition_tree(rule.conditions, context) for rule in rules])
