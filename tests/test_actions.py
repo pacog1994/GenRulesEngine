@@ -16,4 +16,4 @@ def test_deny():
 def test_login():
     context = {"name": "bill"}
     result = actions.dispatch("login", context)
-    assert result == "bill"
+    assert result == "bill is logged in"

@@ -1,7 +1,7 @@
 import pytest
 
 from genrulesengine.models.conditions.condition import Condition, ConditionGroup, ConditionTree
-from genrulesengine.utils.evaluator import Evaluator
+from genrulesengine.core.evaluator import Evaluator
 
 @pytest.fixture
 def profile_context():

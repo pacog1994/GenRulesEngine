@@ -1,4 +1,4 @@
-from genrulesengine.models.rule import Rule
+from genrulesengine.models.rules.rule import Rule
 
 class RulesEngine:
     """

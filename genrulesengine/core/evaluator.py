@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict
 from genrulesengine.registry.operators.operator import operators
 from genrulesengine.models.conditions.condition import Condition, ConditionGroup, ConditionTree
-from genrulesengine.models.rules.rule import Rule
+from genrulesengine.models.rules.rule import Rule, RuleResult
 
 
 def _get_nested_value(field: str, data: Dict[str, Any])->Any:
@@ -88,11 +88,20 @@ class Evaluator:
         """
         return self.evaluate_condition_group(ct.root, context)
 
-    def evaluate_rules(self, rules: list[Rule], context: Dict[str, Any])->bool:
+    def evaluate_rule(self, rule: Rule, data: Dict[str, Any]) -> RuleResult:
         """
-        Evaluate list of rules
-        :param rules: list of rules
-        :param context: incoming data
+        Evaluate and return the corresponding result
+        :param rule: rule to evaluate
+        :param data: incoming data to evaluate against
         :return: True or False
         """
-        return all([self.evaluate_condition_tree(rule.conditions, context) for rule in rules])
+        triggered = self.evaluate_condition_tree(rule.conditions, data)
+
+        result = RuleResult(
+            label=rule.label,
+            triggered=triggered,
+            actions_executed=rule.action_names,
+            output=None
+        )
+
+        return result
