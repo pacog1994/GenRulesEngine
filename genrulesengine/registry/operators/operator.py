@@ -4,6 +4,8 @@ from genrulesengine.utils.decorator_registry import DecoratorRegistry
 # Registry stores and dispatches operator Fns
 operators = DecoratorRegistry()
 
+# built-in functions
+
 # equal
 @operators.register("=")
 def eq(l, r):
