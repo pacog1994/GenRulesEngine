@@ -1,31 +1,36 @@
-from genrulesengine.models.rules.rule import Rule
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict
 
-class RulesEngine:
+from genrulesengine.models.rules.rule import Rule, RuleResult
+from genrulesengine.core.parser import Parser
+from genrulesengine.core.evaluator import Evaluator
+from genrulesengine.core.executor import Executor
+
+
+@dataclass
+class Engine:
     """
     Class's intended design is engine orchestration
-    TODO Implement
     """
-    def __init__(self, rules: list[Rule]):
-        self.rules = rules
+    """
+    Loads File -> Converts to Rule Models
+    Evaluates -> Executes -> Outputs
+    """
+    parser: Callable[[Dict[str, Any]], list[Rule]] = field(default_factory=lambda: Parser().parse_rules)
+    evaluator: Callable[[Dict[str, Any]], RuleResult] = field(default_factory=lambda: Evaluator().evaluate_rule)
+    executor: Callable[[Dict[str, Any]], list[RuleResult]] = field(default_factory=lambda: Executor().execute)
+    rules: list[Rule] = field(default_factory=list)
 
-    def list_rules(self) -> list[Rule]:
-        return self.rules
 
-    def add_rule(self, rule: Rule):
-        self.rules.append(rule)
+    def load(self, context: Dict[str, Any]) -> None:
+        self.rules = self.parser(context)
 
-    def load_rules(self, cxt):
-        pass
-        # use parser on json
-        # normalize data
-        # store in self.rules
+    def run(self, context: Dict[str, Any]) -> list[RuleResult]:
+        results: list[RuleResult] = []
 
-    def run(self, flag, cxt):
         for rule in self.rules:
-            if flag == "ALL":
-                if rule.evaluate_all(cxt):
-                    rule.execute(cxt)
-            elif flag == "ANY":
-                if rule.evaluate_any(cxt):
-                    rule.execute(cxt)
+            result = self.evaluator(rule, context)
+            result = self.executor(rule, context, result)
+            results.append(result)
 
+        return results

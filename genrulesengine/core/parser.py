@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -84,6 +83,12 @@ class Parser:
                 conditions=self.parse_condition_tree(data),
                 action_names=data["actions"]
             )
+        except KeyError as e:
+            raise KeyError(f"Missing required field: {e}")
+
+    def parse_rules(self, data: Dict[str, Any]) -> list[Rule]:
+        try:
+            return list([self.parse_rule(rule) for rule in data["rules"]])
         except KeyError as e:
             raise KeyError(f"Missing required field: {e}")
 
