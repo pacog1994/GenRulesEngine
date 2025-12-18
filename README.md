@@ -3,9 +3,9 @@
 
 # About
 
-**GenRulesEngine** is a lightweight, generic rules-engine abstraction designed to serve as a flexible skeleton for a wide range of rule-based use cases. It provides a consistent set of terminology and components—such as rules, rule sets, conditions, and actions—to improve clarity and maintainability across different implementations.
+**GenRulesEngine** is a lightweight, generic rules-engine library designed to serve as a flexible skeleton for a wide range of rule-based use cases. It provides a consistent set of terminology and components—such as rules, conditions, and actions—to improve clarity and maintainability across different implementations.
 
-Like all rules engines, the goal of GenRulesEngine is to cleanly separate business logic (“rules”) from application code. All rules and rule sets are evaluated at runtime, and actions are triggered automatically when their conditions are met.
+Like all rules engines, the goal of GenRulesEngine is to cleanly separate business logic (“rules”) from application code. All rules are evaluated at runtime, and actions are triggered automatically when their conditions are met.
 
 
 # Terminology
@@ -32,11 +32,8 @@ Like all rules engines, the goal of GenRulesEngine is to cleanly separate busine
 	- calling a callback
 	- returning a decision allow/deny
 
-* Rule Set  
-	A rule set is a collection of rules evaluated together
-
-* Input Data  
-	Inputs are the runtime data objects passed into the engine during evaluation.
+*  Context Data  
+	Context are the runtime data objects passed into the engine during evaluation.
 	
 	Examples:
 	- a client-server's or server-server's request payload
@@ -51,21 +48,14 @@ Like all rules engines, the goal of GenRulesEngine is to cleanly separate busine
 	- Comparison: `gt, gte, lt, lte`
 	- Membership: `in, contains`
 
-* Evaluation Engine  
+* Core Engine  
 	The core runtime engine that:
-	- loads rule sets
+	- loads rules
 	- evaluates each rule’s conditions
 	- resolves matching rules
 	- executes corresponding actions
 	- aggregates results
-	- returns a consistent decision object
-
-* Decision  
-	The final output of a rule set evaluation.
-	
-	Examples:
-	- a decision, i.e. allow, deny, etc.
-	- set of triggered actions results
+	- returns a list of RuleResult objects
 
 # API Documentation
 Subject-To-Change
