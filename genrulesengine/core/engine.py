@@ -1,31 +1,57 @@
-from genrulesengine.models.rules.rule import Rule
+from dataclasses import dataclass, field
+from typing import Any, Callable, Dict
 
-class RulesEngine:
+from genrulesengine.models.rules.rule import Rule, RuleResult
+from genrulesengine.core.parser import Parser
+from genrulesengine.core.evaluator import Evaluator
+from genrulesengine.core.executor import Executor
+
+@dataclass
+class Engine:
     """
     Class's intended design is engine orchestration
-    TODO Implement
     """
-    def __init__(self, rules: list[Rule]):
-        self.rules = rules
+    """
+    Loads File -> Converts to Rule Models
+    Orchestrates Rule Order
+    Evaluates -> Executes -> Outputs
+    """
+    parser: Callable[[Dict[str, Any]], list[Rule]] = field(default_factory=lambda: Parser().parse_rules)
+    evaluator: Callable[[Dict[str, Any]], RuleResult] = field(default_factory=lambda: Evaluator().evaluate_rule)
+    executor: Callable[[Dict[str, Any]], list[RuleResult]] = field(default_factory=lambda: Executor().execute)
+    rules: list[Rule] = field(default_factory=list)
 
-    def list_rules(self) -> list[Rule]:
-        return self.rules
 
-    def add_rule(self, rule: Rule):
-        self.rules.append(rule)
+    def load(self, context: Dict[str, Any]) -> None:
+        self.rules = self.parser(context)
 
-    def load_rules(self, cxt):
-        pass
-        # use parser on json
-        # normalize data
-        # store in self.rules
+    def resolve_execution_order(self) -> list[Rule]:
+        rule_map = {r.id: r for r in self.rules}
+        visited = set()
+        stack = []
 
-    def run(self, flag, cxt):
+        def topological_sort(node: Rule):
+            if node.id in visited:
+                return
+            visited.add(node.id)
+            for dep in rule.depends_on:
+                topological_sort(rule_map[dep])
+            stack.append(node)
+
         for rule in self.rules:
-            if flag == "ALL":
-                if rule.evaluate_all(cxt):
-                    rule.execute(cxt)
-            elif flag == "ANY":
-                if rule.evaluate_any(cxt):
-                    rule.execute(cxt)
+            topological_sort(rule)
 
+        return stack
+
+    def run(self, context: Dict[str, Any]) -> list[RuleResult]:
+        ordered_rules = self.resolve_execution_order()
+        results = []
+        prev_results_tracker = {}
+
+        for rule in ordered_rules:
+            evaluated_result = self.evaluator(rule, context, prev_results_tracker)
+            executed_result = self.executor(rule, context, evaluated_result)
+            results.append(executed_result)
+            prev_results_tracker[rule.id] = executed_result
+
+        return results

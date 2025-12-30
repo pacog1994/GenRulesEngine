@@ -19,7 +19,7 @@ def sample_json():
        ' "actions": ["approve"]}')
 
 def test_parse_rule(parser, sample_json):
-    rule = parser.parse_rule(sample_json)
+    rule = parser.parse_rule({}, sample_json)
     assert isinstance(rule, Rule)
     assert rule.label == "Working Adult"
     assert isinstance(rule.action_names, list) and rule.action_names == ["approve"]

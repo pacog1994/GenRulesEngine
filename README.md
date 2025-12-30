@@ -3,17 +3,18 @@
 
 # About
 
-**GenRulesEngine** is a lightweight, generic rules-engine abstraction designed to serve as a flexible skeleton for a wide range of rule-based use cases. It provides a consistent set of terminology and components—such as rules, rule sets, conditions, and actions—to improve clarity and maintainability across different implementations.
+**GenRulesEngine** is a lightweight, generic rules-engine library designed to serve as a flexible skeleton for a wide range of rule-based use cases. It provides a consistent set of terminology and components—such as rules, conditions, and actions—to improve clarity and maintainability across different implementations.
 
-Like all rules engines, the goal of GenRulesEngine is to cleanly separate business logic (“rules”) from application code. All rules and rule sets are evaluated at runtime, and actions are triggered automatically when their conditions are met.
+Like all rules engines, the goal of GenRulesEngine is to cleanly separate business logic (“rules”) from application code. All rules are evaluated at runtime, and actions are triggered automatically when their conditions are met.
 
 
 # Terminology
 
 * Rule  
   A rule represents a single piece of business logic made up of:
-	-  Conditions: Boolean expressions that must evaluate to true
-	-  Actions: Functions or handlers when all conditions are satisfied 
+	-  conditions: Boolean expressions that must evaluate to true
+	-  actions: Functions or handlers when all conditions are satisfied
+    -  depends_on: List of dependencies on other rules denoted by its unique, cap-insensitive label
 
 * Condition  
 	A condition is predicate that tests one or more inputs, evaluating to True or False
@@ -32,11 +33,8 @@ Like all rules engines, the goal of GenRulesEngine is to cleanly separate busine
 	- calling a callback
 	- returning a decision allow/deny
 
-* Rule Set  
-	A rule set is a collection of rules evaluated together
-
-* Input Data  
-	Inputs are the runtime data objects passed into the engine during evaluation.
+*  Context Data  
+	Context are the runtime data objects passed into the engine during evaluation.
 	
 	Examples:
 	- a client-server's or server-server's request payload
@@ -51,48 +49,90 @@ Like all rules engines, the goal of GenRulesEngine is to cleanly separate busine
 	- Comparison: `gt, gte, lt, lte`
 	- Membership: `in, contains`
 
-* Evaluation Engine  
+* Core Engine  
 	The core runtime engine that:
-	- loads rule sets
+	- loads rules
 	- evaluates each rule’s conditions
 	- resolves matching rules
 	- executes corresponding actions
 	- aggregates results
-	- returns a consistent decision object
+	- returns a list of RuleResult objects
 
-* Decision  
-	The final output of a rule set evaluation.
-	
-	Examples:
-	- a decision, i.e. allow, deny, etc.
-	- set of triggered actions results
+# Usage Documentation
 
-# API Documentation
-Subject-To-Change
+Installation:
 
-`POST /genrulesengine/evaluate`
+1. `pip install`
 
-JSON-Formatted Body
+2. Create an instance of the engine
+
+3. Load rules, GenRulesEngine currently supports JSON documents
+
+Supported JSON Rules Format
 ```
+
 {
-  "ruleSet": "discountRules",
-  "inputs": {
-    "order": {
-      "total": 150,
-      "items": 3,
-      "customerType": "regular"
-    },
-    "user": {
-      "id": "12345",
-      "isMember": true
-    }
-  },
-  "options": {
-    "stopOnFirstMatch": false,
-    "includeRuleMetadata": true
-  }
+    "rules": [
+        {
+            "id": 1,
+            "label": "Working Adult",
+            "conditions": {
+                "all": [
+                    {
+                        "field": "age",
+                        "operator": ">",
+                        "value": 18
+                    },
+                    {
+                        "field": "age",
+                        "operator": "<",
+                        "value": 65
+                    }
+                ],
+                "any": [
+                    {
+                        "field": "occupation",
+                        "operator": "=",
+                        "value": "engineer"
+                    },
+                    {
+                        "field": "location",
+                        "operator": "=",
+                        "value": "wa"
+                    }
+                ]
+            },
+            "actions": [
+                "approve"
+            ]
+        },
+        {
+            "id": 2,
+            "label": "Acknowledge Active User",
+            "conditions": {
+                "all": [
+                    {
+                        "field": "account.status",
+                        "operator": "=",
+                        "value": "active"
+                    }
+                ],
+                "any": []
+            },
+            "actions": [
+                "login"
+            ]
+        }
+    ]
 }
+
 ```
+
+4. Call engine.run(context), where context is your information to evaluate
+
+
+
+
 
 **Response:**  
 200 OK: 

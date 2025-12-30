@@ -88,20 +88,33 @@ class Evaluator:
         """
         return self.evaluate_condition_group(ct.root, context)
 
-    def evaluate_rule(self, rule: Rule, data: Dict[str, Any]) -> RuleResult:
+    def evaluate_rule(self, rule: Rule, data: Dict[str, Any], prev_results: Dict[int, RuleResult] ) -> RuleResult:
         """
         Evaluate and return the corresponding result
         :param rule: rule to evaluate
         :param data: incoming data to evaluate against
+        :param prev_results: tracker for processed rule results, used for dependency checking
         :return: True or False
         """
+
+        # make a skip boolean and use list to track resolved_dependencies
+        for dependency_id in rule.depends_on:
+            dependency_results = prev_results.get(dependency_id)
+            if not dependency_results or not dependency_results.triggered:
+                return RuleResult(
+                    label=rule.label,
+                    triggered=False,
+                    actions_executed=[],
+                    output=None,
+                    skipped=True,
+                )
+
         triggered = self.evaluate_condition_tree(rule.conditions, data)
 
-        result = RuleResult(
+        return RuleResult(
             label=rule.label,
             triggered=triggered,
-            actions_executed=rule.action_names,
+            skipped=False,
+            actions_executed=[],
             output=None
         )
-
-        return result
