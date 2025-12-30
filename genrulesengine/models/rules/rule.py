@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 from genrulesengine.models.conditions.condition import ConditionTree
 from genrulesengine.registry.actions.action import actions
@@ -11,9 +11,14 @@ class Rule:
     :param conditions: list of conditions that need to be met to satisfy the rule
     :param action_names: list of names that map to actions taken after satisfying conditions
     """
+    id: int
     label: str
     conditions: ConditionTree
     action_names: list[str]
+    depends_on: list[int] = field(default_factory=list)
+    # description: Optional[str]
+    # priority: Optional[int]
+
 
     def execute(self, cxt):
         for action in self.action_names:
@@ -32,3 +37,4 @@ class RuleResult:
     triggered: bool
     actions_executed: list[str]
     output: Optional[Dict[str, Any]] | None
+    skipped: bool = False

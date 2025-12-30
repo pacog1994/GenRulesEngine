@@ -12,6 +12,10 @@ def approve(_: Dict[str, Any] = None) -> str:
 def deny(_: Dict[str, Any] = None) -> str:
     return "deny"
 
+@actions.register("acknowledge")
+def acknowledge(_:Dict[str, Any] = None) -> str:
+    return "acknowledged"
+
 @actions.register("login")
 def login(d: Dict[str, Any] = None) -> str | None:
     for key in d:

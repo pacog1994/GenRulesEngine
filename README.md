@@ -12,8 +12,9 @@ Like all rules engines, the goal of GenRulesEngine is to cleanly separate busine
 
 * Rule  
   A rule represents a single piece of business logic made up of:
-	-  Conditions: Boolean expressions that must evaluate to true
-	-  Actions: Functions or handlers when all conditions are satisfied 
+	-  conditions: Boolean expressions that must evaluate to true
+	-  actions: Functions or handlers when all conditions are satisfied
+    -  depends_on: List of dependencies on other rules denoted by its unique, cap-insensitive label
 
 * Condition  
 	A condition is predicate that tests one or more inputs, evaluating to True or False
@@ -57,32 +58,81 @@ Like all rules engines, the goal of GenRulesEngine is to cleanly separate busine
 	- aggregates results
 	- returns a list of RuleResult objects
 
-# API Documentation
-Subject-To-Change
+# Usage Documentation
 
-`POST /genrulesengine/evaluate`
+Installation:
 
-JSON-Formatted Body
+1. `pip install`
+
+2. Create an instance of the engine
+
+3. Load rules, GenRulesEngine currently supports JSON documents
+
+Supported JSON Rules Format
 ```
+
 {
-  "ruleSet": "discountRules",
-  "inputs": {
-    "order": {
-      "total": 150,
-      "items": 3,
-      "customerType": "regular"
-    },
-    "user": {
-      "id": "12345",
-      "isMember": true
-    }
-  },
-  "options": {
-    "stopOnFirstMatch": false,
-    "includeRuleMetadata": true
-  }
+    "rules": [
+        {
+            "id": 1,
+            "label": "Working Adult",
+            "conditions": {
+                "all": [
+                    {
+                        "field": "age",
+                        "operator": ">",
+                        "value": 18
+                    },
+                    {
+                        "field": "age",
+                        "operator": "<",
+                        "value": 65
+                    }
+                ],
+                "any": [
+                    {
+                        "field": "occupation",
+                        "operator": "=",
+                        "value": "engineer"
+                    },
+                    {
+                        "field": "location",
+                        "operator": "=",
+                        "value": "wa"
+                    }
+                ]
+            },
+            "actions": [
+                "approve"
+            ]
+        },
+        {
+            "id": 2,
+            "label": "Acknowledge Active User",
+            "conditions": {
+                "all": [
+                    {
+                        "field": "account.status",
+                        "operator": "=",
+                        "value": "active"
+                    }
+                ],
+                "any": []
+            },
+            "actions": [
+                "login"
+            ]
+        }
+    ]
 }
+
 ```
+
+4. Call engine.run(context), where context is your information to evaluate
+
+
+
+
 
 **Response:**  
 200 OK: 

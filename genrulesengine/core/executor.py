@@ -9,7 +9,7 @@ This class is meant to abstract the executing functionality for the engine
 @dataclass
 class Executor:
     def execute(self, rule: Rule, data: Dict[str, Any], result: RuleResult) -> RuleResult:
-        if not result.triggered:
+        if not result.triggered or result.skipped:
             return result
 
         outputs = {}
