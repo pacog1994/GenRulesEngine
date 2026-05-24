@@ -39,7 +39,11 @@ class Evaluator:
         try:
             # on comparison, input and value should be compared through intent
             if (type(_input) != type(condition.value) and
-                    (condition.operator != "in" and condition.operator != "contains")):
+                    (condition.operator != "in"
+                    and condition.operator != "not_in"
+                    and condition.operator != "contains"
+                    and condition.operator != "contains_any"
+                    and condition.operator != "contains_all")):
                 condition.value = type(_input)(condition.value)
         except ValueError:
             pass
@@ -104,8 +108,6 @@ class Evaluator:
                 return RuleResult(
                     label=rule.label,
                     triggered=False,
-                    actions_executed=[],
-                    output=None,
                     skipped=True,
                 )
 
@@ -115,6 +117,4 @@ class Evaluator:
             label=rule.label,
             triggered=triggered,
             skipped=False,
-            actions_executed=[],
-            output=None
         )

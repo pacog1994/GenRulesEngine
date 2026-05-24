@@ -1,6 +1,5 @@
 from genrulesengine.registry.operators.operator import operators
 
-
 def test_registration():
     assert "=" in operators.registry
     assert "!=" in operators.registry
@@ -53,6 +52,21 @@ def test_membership():
 def test_membership_exceptions():
     op_in, contains = operators.registry["in"], operators.registry["contains"]
     assert op_in("test", 1) == False
+    assert op_in("test", "test") == True
     assert op_in(1, [1, 2]) == True
     assert contains(1, 1) == False
     assert contains([1, 2, 3], 1) == True
+
+def test_exclude_membership():
+    not_in = operators.registry["not in"]
+    assert not_in(1, [2, 3]) == True
+    assert not_in(2, [1, 2, 3]) == False
+
+def test_multivalue_contains():
+    contains_any, contains_all = operators.registry["contains_any"], operators.registry["contains_all"]
+    assert contains_any([1, 2, 3, 4, 5], [0, 7, 9, 1, 6]) == True
+    assert contains_any([1,2], [3, 4, 5]) == False
+    assert contains_all([1, 2, 3 ,4], [1, 2]) == True
+    assert contains_all([1, 2, 3], [1, 2, 4, 5]) == False
+    assert contains_any("The brown fox jumps over the fence", ["yellow", "orange", "brown"]) == True
+    assert contains_any("Hello World", ["Test", "This"]) == False
