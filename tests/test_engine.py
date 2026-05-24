@@ -1,27 +1,69 @@
 import pytest
 import json
 from genrulesengine.core.engine import Engine
-from genrulesengine.models.rules.rule import RuleResult
 
 
 @pytest.fixture
-def load_json():
+def load_profile_json():
     return json.loads(
-      '{"rules": ['
-      '{"id": 1, "label": "Working Adult", "conditions":'
-      '{"all": [{"field":"age", "operator": ">", "value": 18}, {"field":"age", "operator": "<", "value": 65}], '
-      '"any": [{"field": "occupation", "operator": "in", "value": ["engineer", "analyst", "scientist"]},'
-      ' {"field": "physically_able", "operator": "=", "value": "Y"}]}, "actions": ["approve"], '
-      '"depends_on": ["Acknowledge Active User"]},'
-      '{"id": 2, "label": "Determine Eligible Residency", "conditions":'
-      '{"all": [{"field":"location.state", "operator": "in", "value": ["MI", "WA", "CA", "IL", "VA", "NY"]}],'
-      '"any": []}, "actions": ["approve"], "depends_on": ["Acknowledge Active User"]},'
-      '{"id": 3, "label": "Login User", "conditions":'
-      '{"all": [], "any": []}, "actions": ["login"], "depends_on": ["Working Adult", "Determine Eligible Residency"]},'
-      '{"id": 4, "label": "Acknowledge Active User", "conditions":'
-      '{"all": [{"field":"account.status", "operator": "=", "value": "active"}], '
-      '"any": []}, "actions": ["acknowledge"], "depends_on": []}]}')
+        '{"rules": ['
+        '{"id": 1, "label": "Working Adult", "conditions": '
+        '{"all": [{"field":"age", "operator": ">", "value": 18}, {"field":"age", "operator": "<", "value": 65}], '
+        '"any": [{"field": "occupation", "operator": "in", "value": ["engineer", "analyst", "scientist"]}, '
+        '{"field": "physically_able", "operator": "=", "value": "Y"}]}, '
+        '"actions": ["approve"], '
+        '"depends_on": ["Acknowledge Active User"]},'
 
+        '{"id": 2, "label": "Determine Eligible Residency", "conditions": '
+        '{"all": [{"field":"location.state", "operator": "in", "value": ["MI", "WA", "CA", "IL", "VA", "NY"]}], '
+        '"any": []}, '
+        '"actions": ["approve"], '
+        '"depends_on": ["Acknowledge Active User"]},'
+
+        '{"id": 3, "label": "Login User", "conditions": '
+        '{"all": [], "any": []}, '
+        '"actions": ["login"], '
+        '"depends_on": ["Working Adult", "Determine Eligible Residency"]},'
+
+        '{"id": 4, "label": "Acknowledge Active User", "conditions": '
+        '{"all": [{"field":"account.status", "operator": "=", "value": "active"}], '
+        '"any": []}, '
+        '"actions": ["acknowledge"], '
+        '"depends_on": []}'
+        
+        ']}'
+    )
+
+@pytest.fixture
+def load_email_json():
+    return json.loads(
+        '{"rules": ['
+    
+        '{"id": 1, "label": "job email", "conditions": {"all": [], '
+        '"any": ['
+        '{"field": "subject", "value": ["interview", "recruiter", "application", "recruiting", "opportunity"], "operator": "contains_any"}, '
+        '{"field": "snippet", "value": ["interview", "recruiter", "application", "recruiting", "opportunity"], "operator": "contains_any"}'
+        ']}, '
+        '"actions": ['
+        '{"order": 0, "config": {"label": "Jobs"}, "action_type": "insert"}'
+        '], '
+        '"depends_on": []}'
+
+        ']}'
+    )
+
+@pytest.fixture
+def email_context():
+    return {
+        "id": "20e210a11111111",
+        "threadId": "20e210a11111111",
+        "subject": "job  at Netflix",
+        "snippet": "Hello, apply today for an  to work at Netflix",
+        "receivedAt": 178191991,
+        "hasAttachments": False,
+        "to": [{"address": "Tony Stark"}],
+        "from_": {"address": "LinkedIn Job Alerts"}
+    }
 
 @pytest.fixture
 def profile_context():
@@ -40,24 +82,35 @@ def profile_context():
         }
     }
 
-
-def test_engine_e2e(load_json, profile_context):
+def test_engine_profile_e2e(load_profile_json, profile_context):
     engine = Engine()
     assert not engine.rules  # empty
     # parse rules into a list and add into engines internal rules list
-    engine.load(load_json)  # not empty
+    engine.load(load_profile_json)  # not empty
     assert engine.rules
     results = engine.run(profile_context)
     assert isinstance(results, list) and len(results) == 4
     rule_result = results[0]
     assert rule_result.label == "Acknowledge Active User"
-    assert rule_result.output["acknowledge"] == "acknowledged"
+    assert rule_result.triggered == True
     rule_result2 = results[1]
     assert rule_result2.label == "Working Adult"
-    assert rule_result2.output["approve"] == "approved"
+    assert rule_result2.triggered == True
     rule_result3 = results[2]
     assert rule_result3.label == "Determine Eligible Residency"
-    assert rule_result3.output["approve"] == "approved"
+    assert rule_result3.triggered == True
     rule_result4 = results[3]
     assert rule_result4.label == "Login User"
-    assert rule_result4.output["login"] == "Bill is logged in"
+    assert rule_result4.triggered == True
+
+def test_engine_email_e2e(load_email_json, email_context):
+    engine = Engine()
+    assert not engine.rules
+    engine.load(load_email_json)
+    assert engine.rules
+    results = engine.run(email_context)
+    print(results)
+    assert isinstance(results, list) and len(results) == 1
+    rule_result = results[0]
+    assert rule_result.label == "job email"
+    assert rule_result.triggered == True

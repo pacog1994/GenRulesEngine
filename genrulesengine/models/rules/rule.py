@@ -16,9 +16,6 @@ class Rule:
     conditions: ConditionTree
     action_names: list[str]
     depends_on: list[int] = field(default_factory=list)
-    # description: Optional[str]
-    # priority: Optional[int]
-
 
     def execute(self, cxt):
         for action in self.action_names:
@@ -30,11 +27,7 @@ class RuleResult:
     Object representing the results of a rule execution
     :param label: name of the rule
     :param triggered: trigger flag
-    :param actions_executed: list of actions executed
-    :param output: output of the executed actions
     """
     label: str
     triggered: bool
-    actions_executed: list[str]
-    output: Optional[Dict[str, Any]] | None
     skipped: bool = False

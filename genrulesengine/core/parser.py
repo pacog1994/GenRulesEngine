@@ -3,44 +3,6 @@ from typing import Any, Dict
 
 from genrulesengine.models.conditions.condition import Condition, ConditionGroup, ConditionTree
 from genrulesengine.models.rules.rule import Rule
-""" Supported Rules Engine config file
-{
-    "rules": [{
-        // metadata support ---------------
-        "id",
-        "label",
-        "description",
-        "version",
-        "priority",
-        ...,
-        //--------------------
-        "conditions": {
-            "any": [
-                        {
-                            "field": "",
-                            "operator": "",
-                            "value": ""
-                        },
-                        {...}
-                    ],
-            "all": [
-                        {...}
-                   ]
-        },
-        "actions": ["", "..."],
-        "depends_on": {}
-    }, {...}],
-    // do later -------------------------------------
-    "options": {
-    
-    }
-}
-"""
-
-""" Supported Rules Engine input file
-    
-"""
-
 
 @dataclass
 class Parser:

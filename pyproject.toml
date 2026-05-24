@@ -1,11 +1,21 @@
 [project]
 name = "genrulesengine"
-version = "0.1.0"
+version = "0.2.1"
+authors = [
+    { name="Paco Gallegos", email="pacog1994@gmail.com"},
+]
 description = "generic rules engine"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
 dependencies = []
+
 # follows uv convention package name should be the same as project name
+[tool.hatch.build.targets.wheel]
 packages = ["genrulesengine"]
 
 [dependency-groups]
@@ -17,5 +27,12 @@ dev = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+# uv configs ----------------------------------------------------------------
+[[tool.uv.index]]
+name = "codeartifact"
+url = "https://pg-771785181171.d.codeartifact.us-west-2.amazonaws.com/pypi/genrulesengine/simple/"
+publish-url = "https://pg-771785181171.d.codeartifact.us-west-2.amazonaws.com/pypi/genrulesengine/"
+
+# pytest configs ------------------------------------------------------------
 [tool.pytest.ini_options]
 pythonpath = ["."]

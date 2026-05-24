@@ -14,7 +14,7 @@ def initialize():
     ct = ConditionTree(conditions)
     # setup actions
     list_actions = ["approve", "login"]
-    return Rule("age compliance", ct, list_actions)
+    return Rule(1, "age compliance", ct, list_actions,[])
 
 
 @pytest.fixture
@@ -43,6 +43,6 @@ def test_initialization(initialize):
 
 def test_rule_evaluation_and_execution_success(initialize, profile_context):
     rule = initialize
-    result = Evaluator().evaluate_rule(rule, profile_context)
+    result = Evaluator().evaluate_rule(rule, profile_context, {})
     assert isinstance(result, RuleResult)
     assert result.triggered is True
